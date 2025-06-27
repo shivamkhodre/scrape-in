@@ -7,6 +7,7 @@ import os
 import subprocess
 import platform
 import re
+import csv
 import pandas as pd
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
@@ -68,6 +69,8 @@ class LinkedInScraper:
         
     def _setup_logging(self):
         """Setup comprehensive logging system"""
+        logs_dir = "logs"
+        os.makedirs(logs_dir, exist_ok=True)
         log_format = '%(asctime)s - %(levelname)s - %(message)s'
         logging.basicConfig(
             level=logging.INFO,
@@ -459,8 +462,8 @@ class LinkedInScraper:
             search_url = f"https://www.linkedin.com/search/results/people/?keywords={keywords.replace(' ', '%20')}"
          # https://www.linkedin.com/search/results/people/?geoUrn=%5B%22United%20States%22%5D&keywords=IT%20Recruiter&origin=FACETED_SEARCH&sid=!JI
          # https://www.linkedin.com/search/results/people/?geoUrn=%5B%22103644278%22%5D&keywords=IT%20recruiter&origin=FACETED_SEARCH&sid=wZl   
-            if True:
-                search_url += f"&origin=FACETED_SEARCH&geoUrn=%5B""{103644278}""%5D"
+            if location:
+                search_url += f"&origin=FACETED_SEARCH&geoUrn=%5B"f"{location}""%5D"
             
             if industry:
                 search_url += f"&industry=%5B%22{industry}%22%5D"
@@ -1249,6 +1252,7 @@ class LinkedInScraper:
     def save_data(self, filename=None, format='json'):
         """Save scraped data to file"""
         try:
+            filepath = ""
             output_dir = "output"
             os.makedirs(output_dir, exist_ok=True)
 
@@ -1265,37 +1269,38 @@ class LinkedInScraper:
             elif format.lower() == 'csv':
                 filename += '.csv'
                 filepath = os.path.join(output_dir, filename)
+                csv_file = open(filepath, "w+")
+                writer = csv.writer(csv_file)
+                writer.writerow([
+                    "Name", "Headline", "Location", "Profile URL", "Current Company", "Scraped At"
+                ])
                 if self.scraped_data:
-            #         # Flatten the data for CSV
-            #         structured_data = []
-            #         for profile in self.scraped_data:
-            #             if isinstance(profile, list):
-            #                 for subprofile in profile:
-            #                     if isinstance(subprofile, dict):
-            #                         structured_data.append(subprofile)
-            #             elif isinstance(profile, dict):
-            #                 structured_data.append(profile)
 
-                    flattened_data = []
-                    for profile in self.scraped_data:
-                        flat_profile = {
-                            'name': profile['name'],
-                            'headline': profile['headline'],
-                            'location': profile['location'],
-                            # 'connections': profile.get('connections', ''),
-                            # 'about': profile.get('about', ''),
-                            'url': profile['profile_url'],
-                            'scraped_at': profile['scraped_at'],
-                            # 'experience_count': len(profile.get('experience', [])),
-                            # 'education_count': len(profile.get('education', [])),
-                            # 'skills_count': len(profile.get('skills', [])),
-                            'current_company': profile['current_company'],
-                            # 'current_title': profile.get('experience', [{}])[0].get('title', '') if profile.get('experience') else ''
-                        }
-                        flattened_data.append(flat_profile)
+                    # flattened_data = []
+                    for profile in self.scraped_data[0]:
+                        print(profile)
+                        writer.writerow([
+                            profile['name'], profile['headline'], profile['location'], profile['profile_url'],
+                            profile['current_company'], profile['scraped_at']
+                        ])
+                        # flat_profile = {
+                        #     'name': profile['name'],
+                        #     'headline': profile['headline'],
+                        #     'location': profile['location'],
+                        #     # 'connections': profile.get('connections', ''),
+                        #     # 'about': profile.get('about', ''),
+                        #     'url': profile['profile_url'],
+                        #     'scraped_at': profile['scraped_at'],
+                        #     # 'experience_count': len(profile.get('experience', [])),
+                        #     # 'education_count': len(profile.get('education', [])),
+                        #     # 'skills_count': len(profile.get('skills', [])),
+                        #     'current_company': profile['current_company'],
+                        #     # 'current_title': profile.get('experience', [{}])[0].get('title', '') if profile.get('experience') else ''
+                        # }
+                        # flattened_data.append(flat_profile)
                     
-                    df = pd.DataFrame(flattened_data)
-                    df.to_csv(filepath, index=False, encoding='utf-8')
+                    # df = pd.DataFrame(flattened_data)
+                    # df.to_csv(filepath, index=False, encoding='utf-8')
             
             self.logger.info(f"Data saved to {filepath}")
             return filepath

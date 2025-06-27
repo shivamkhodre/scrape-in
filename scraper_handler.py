@@ -1,5 +1,6 @@
 import json
 from scraper.scraper import LinkedInScraper  # Make sure this import path matches
+from dotenv import load_dotenv
 import os
 
 def scrape_linkedin_handler(event, context):
@@ -63,12 +64,13 @@ def scrape_linkedin_handler(event, context):
         scraper.close()
 
 if __name__ == "__main__":
+    load_dotenv()
     print("Starting LinkedIn scraper manually...")
-    
+
     email = os.getenv('EMAIL') or "saggy852kr@gmail.com"
     password = os.getenv('PASSWORD') or "boto3505"
     keywords = os.getenv('KEYWORDS') or os.getenv('SEARCH_PARAMETER') or "IT Recruiter"
-    location = os.getenv('LOCATION') or os.getenv('LOCATION_PARAMETER') or "United States"
+    location = os.getenv('LOCATION') or os.getenv('LOCATION_PARAMETER') or "103644278"
     max_profiles = int(os.getenv('MAX_PROFILES', '10'))  # Default to 2 if not set
     
     event = {
