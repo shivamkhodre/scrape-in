@@ -92,22 +92,29 @@ if [ ! -d "$VENV_NAME" ]; then
     python3 -m venv "$VENV_NAME"
 fi
 
-# Activate virtual environment
-echo "Activating virtual environment..."
-source "$VENV_NAME/bin/activate"
-
 # Step 5: Install dependencies from requirements.txt
 if [ -f "requirements.txt" ]; then
     echo "Installing dependencies..."
+    source "$VENV_NAME/bin/activate"
     pip install --upgrade pip
     pip install -r requirements.txt
+    deactivate
 else
     echo "No requirements.txt file found!"
 fi
 
 mkdir -p logs
 
-# Step 6: Check if Docker is installed
+# Step 6: Create a .env file from sample_env
+if [ -f "sample-env" ]; then
+    echo "Creating .env file from sample_env..."
+    cp sample-env .env
+    echo ".env file created successfully."
+else
+    echo "sample_env file not found. Skipping .env file creation."
+fi
+
+# Step 7: Check if Docker is installed
 echo "Checking if Docker is installed..."
 if ! command -v docker &>/dev/null; then
     echo "Docker is not installed. Installing Docker..."
@@ -125,7 +132,7 @@ else
     echo "Docker is already installed."
 fi
 
-# Step 7: Start Docker (if systemctl is not found)
+# Step 8: Start Docker (if systemctl is not found)
 echo "Starting Docker..."
 if command -v systemctl &>/dev/null; then
     sudo systemctl start docker
@@ -135,5 +142,9 @@ else
     sudo dockerd &
 fi
 
-# Final message
-echo "Project setup is complete. Virtual environment and Docker are ready to use."
+# Step 9: Enter project folder and activate virtual environment
+echo "Entering project folder and activating virtual environment..."
+cd "$TARGET_PATH"
+source "$VENV_NAME/bin/activate"
+
+echo "Virtual environment activated. You are ready to start your project."

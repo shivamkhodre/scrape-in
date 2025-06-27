@@ -15,7 +15,7 @@ def scrape_linkedin_handler(event, context):
     SEARCH_KEYWORDS = event.get("keywords", "IT Recruiter")
     SEARCH_LOCATION = event.get("location", "United States")
     MAX_PROFILES = event.get("max_profiles", 2)
-    print(EMAIL, PASSWORD)
+
     # Initialize scraper
     scraper = LinkedInScraper(headless=True, proxy=None)
 
@@ -63,26 +63,59 @@ def scrape_linkedin_handler(event, context):
     finally:
         scraper.close()
 
-if __name__ == "__main__":
-    load_dotenv()
-    print("Starting LinkedIn scraper manually...")
 
-    email = os.getenv('EMAIL') or "saggy852kr@gmail.com"
-    password = os.getenv('PASSWORD') or "boto3505"
-    keywords = os.getenv('KEYWORDS') or os.getenv('SEARCH_PARAMETER') or "IT Recruiter"
-    location = os.getenv('LOCATION') or os.getenv('LOCATION_PARAMETER') or "103644278"
-    max_profiles = int(os.getenv('MAX_PROFILES', '10'))  # Default to 2 if not set
-    
-    event = {
+def get_user_input():
+    """
+    Prompts the user for scraping configuration.
+    """
+    # Define default values
+    DEFAULT_EMAIL = "saggy852kr@gmail.com"
+    DEFAULT_PASSWORD = "boto3505"
+
+    print("\n--- LinkedIn Scraper Configuration ---")
+
+    # Get Email
+    email_input = input(f"Enter LinkedIn email (or press Enter to use default: {DEFAULT_EMAIL}): ")
+    email = email_input if email_input else DEFAULT_EMAIL
+
+    # Get Password only if email is not default
+    if email == DEFAULT_EMAIL:
+        password = DEFAULT_PASSWORD
+    else:
+        password = input("Enter LinkedIn password: ")
+
+    # Get Mandatory Inputs
+    keywords_input = input("Enter the job position you want to search for (e.g., 'IT Recruiter'): ")
+    keywords = keywords_input if keywords_input else 'IT Recruiter'
+
+    location_input = input("Enter search location GEOURL(e.g., 'United States'): ")
+    location = location_input if location_input else '103644278'
+
+    # Get Optional Input
+    max_profiles_input = input("Enter max number of profiles to scrape (default: 10): ")
+    max_profiles_input = max_profiles_input if max_profiles_input else 10
+    try:
+        max_profiles = int(max_profiles_input) if max_profiles_input else 10
+    except ValueError:
+        print("Invalid input. Using default value of 50 for max profiles.")
+        max_profiles = 50
+
+    return {
         "email": email,
         "password": password,
         "keywords": keywords,
         "location": location,
         "max_profiles": max_profiles
     }
-    
+
+
+if __name__ == "__main__":
+    load_dotenv()
+    print("🚀 Starting LinkedIn scraper manually...")
+
+    user_config = get_user_input()
     try:
-        result = scrape_linkedin_handler(event, None)
+        result = scrape_linkedin_handler(user_config, None)
     except Exception as e:
         print(f"Error occurred: {str(e)}")
         import traceback
