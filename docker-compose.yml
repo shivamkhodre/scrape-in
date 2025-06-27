@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./output:/app/output  # Maps local ./output to container's /app/output
+    environment:
+      DISPLAY: :99
+      PYTHONPATH: /app
+      CHROME_BIN: /usr/bin/chromium
+      CHROMEDRIVER_PATH: /usr/bin/chromedriver
+      CHROME_BROWSER: /usr/bin/chromium-browser
+      HEADLESS: true
+      IS_DOCKER: true
+      LOGIN_ID: ${LOGIN_ID}
+      PASSWORD: ${PASSWORD}
+      SEARCH_PARAMETER: ${SEARCH_PARAMETER}
+      LOCATION_PARAMETER: ${LOCATION_PARAMETER}
+      MAX_PROFILES: ${MAX_PROFILES}
+    command: ["python", "scraper_handler.py"]
