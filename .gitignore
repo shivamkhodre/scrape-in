@@ -23,9 +23,13 @@ logs/
 /logs
 output/
 /output
+.idea/
+scraper/__pycache__/
+utils/__pycache__/
 
 # Files
 .env
+.DS_Store
 
 # Serverless directories
 .serverless
