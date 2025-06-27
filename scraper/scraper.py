@@ -9,6 +9,7 @@ import platform
 import re
 import csv
 import pandas as pd
+from dotenv import load_dotenv
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.by import By
