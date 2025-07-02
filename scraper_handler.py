@@ -88,7 +88,7 @@ def get_user_input():
     keywords_input = input("Enter the job position you want to search for (e.g., 'IT Recruiter'): ")
     keywords = keywords_input if keywords_input else 'IT Recruiter'
 
-    location_input = input("Enter search location GEOURL(e.g., 'United States'): ")
+    location_input = input("Enter search location geoURN(e.g., '103644278'): ")
     location = location_input if location_input else '103644278'
 
     # Get Optional Input
